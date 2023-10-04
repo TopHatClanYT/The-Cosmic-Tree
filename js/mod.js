@@ -1,8 +1,8 @@
 let modInfo = {
-	name: "The ??? Tree",
-	id: "mymod",
-	author: "nobody",
-	pointsName: "points",
+	name: "The Cosmic Tree",
+	id: "WalterWhite",
+	author: "Anthony",
+	pointsName: "Fragments",
 	modFiles: ["layers.js", "tree.js"],
 
 	discordName: "",
@@ -13,8 +13,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0",
-	name: "Literally nothing",
+	num: "2.0",
+	name: "The overhaul",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
@@ -43,6 +43,41 @@ function getPointGen() {
 		return new Decimal(0)
 
 	let gain = new Decimal(1)
+
+	if(hasUpgrade('m', 11)) gain = gain.times(1.5)
+
+	
+
+
+	if(hasUpgrade('m', 12)) gain = gain.times(2)
+
+	if(hasUpgrade('m', 13)) gain = gain.times(2)
+
+	if(hasUpgrade('m', 14)) gain = gain.times(upgradeEffect('m', 14))
+
+	if(hasUpgrade('m', 21)) gain = gain.times(upgradeEffect('m', 21))
+
+	if(hasMilestone('m', 0)) gain = gain.times(2)
+
+	if(hasUpgrade('m', 22)) gain = gain.times(1.5)
+
+	if(hasUpgrade('m', 23)) gain = gain.times(1.25)
+
+	if(hasUpgrade('m', 31)) gain = gain.times(1.25)
+
+	if(hasUpgrade('m', 32)) gain = gain.times(1.5)
+
+	if(hasUpgrade('m', 33)) gain = gain.times(1.25)
+
+	if(hasUpgrade('m', 33)) gain = gain.times(1.4)
+
+	if(hasUpgrade('m', 41)) gain = gain.times(1.5)
+
+	if(hasUpgrade('m', 42)) gain = gain.times(1.4)
+
+	if(hasUpgrade('cd', 13)) gain = gain.times(1.25)
+
+	if(hasAchievement('cd', 11)) gain = gain.times(1.3)
 	return gain
 }
 

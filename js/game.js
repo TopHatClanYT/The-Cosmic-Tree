@@ -428,3 +428,4 @@ var interval = setInterval(function() {
 }, 50)
 
 setInterval(function() {needCanvasUpdate = true}, 500)
+
