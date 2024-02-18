@@ -1136,18 +1136,6 @@ addLayer("hm", {
             Accelerator: {title: "Particle Accelerator",
               body() {return "A particle accelerator is a machine that uses electromagnetic fields to propel charged particles to very high speeds and energies, and to contain them in well-defined beams. Large accelerators are used for fundamental research in particle physics."}}
         },
-        bars: {
-            RBar: {
-                direction: RIGHT,
-                width: 200,
-                height: 200,
-                
-                progress() {
-                 return update(60);
-
-                },
-            },
-            
-        }} )
+       } )
 
         
