@@ -27,6 +27,8 @@ addLayer("m", {
         if (hasUpgrade('cd', 13)) mult = mult.times(1.25)
         if (hasUpgrade('cd', 14)) mult = mult.times(upgradeEffect('cd', 14))
         if (hasAchievement('cd', 12)) mult = mult.times(2)
+        if (hasAchievement('cd', 15)) mult = mult.times(1.5)
+        if (hasAchievement('cd', 16)) mult = mult.times(1.5)
         if (hasUpgrade('s', 11)) mult = mult.times(1.3)
         if (hasUpgrade('s', 12)) mult = mult.times(1.2)
         if (hasUpgrade('s', 13)) mult = mult.times(1.2)
@@ -50,6 +52,11 @@ addLayer("m", {
     nodeStyle() {
         
     },
+    componentStyles: {
+        "challenge"() { return {'height': '200px'} },
+        "prestige-button"() { return {'color': '#2f060c', 'size': '100%', 'border-radius': '15'} }
+    },
+  
     passiveGeneration() {if (hasMilestone("hm", 0)) return 0.05; else return 0},
     autoUpgrade() {if (hasMilestone('e', 3)) return true; else return false},
     layerShown(){return true},
@@ -143,15 +150,7 @@ addLayer("m", {
             unlocked() {if (hasMilestone('hm', 1)) return true; else return false},
         },
     },
-        milestones: {
-            0: {
-                requirementDescription: "1000 multiplier",
-                effectDescription: "Unlocks the Energy bar",
-                done() { return player.m.points.gte(1000) },
-                unlocked() {return (hasMilestone('t', 1))}
-            }
-            
-        }
+        
        
     
 
@@ -218,6 +217,12 @@ addLayer("t", {
              unlocked() {return (hasMilestone('t', 1))},
         }
     
+    },
+    infoboxes: {
+        Tier: {
+            title: "Tiers",
+            body() {return "Semi-important milestones that unlock nodes and upgrades and other stuff like that, although Tiers are mostly there for filler they do play an important role in late game building"},
+        }
     }
 }),
 
@@ -251,18 +256,7 @@ addLayer("e", {
     layerShown(){return (hasMilestone('t', 1))},
 
     branches: ["t", "m"],
-    doReset(resettingLayer) {
-        if (resettingLayer === "m") return; // Don't reset if the layer above (Multiplier) is resetting
-    
-        let keep = [];
-    
-        // Check if the player has milestones related to the "Energy" layer and add them to the keep array
-        if (hasMilestone('e', 0) || hasMilestone('e', 1) || hasMilestone('e', 2) || hasMilestone('e', 3) || hasMilestone('e', 4)) {
-            keep.push('milestones'); // Keep the milestones data
-        }
-    
-        layerDataReset(this.layer, keep);
-    },
+   
     
     
     
@@ -297,7 +291,7 @@ addLayer("e", {
         },
         4: {
             requirementDescription: "250 energy particles",
-            effectDescription: "Finishes the energy bar and gives a 2x boost to star and Hyper Multiplier",
+            effectDescription: "Gives a 2x boost to star and Hyper Multiplier",
             done() {if (inChallenge('c', 12))return player.e.points.gte(100); else return player.e.points.gte(250) },
             
             unlocked() {if (inChallenge('c', 12)) return false; else return (hasAchievement('cd', 13)) },
@@ -305,18 +299,9 @@ addLayer("e", {
             
         }
     },
-    bars: {
-        EBar: {
-            direction: RIGHT,
-            width: 200,
-            height: 50,
-            progress() { if (player.e.points.gte(250)) return 1; else if (player.e.points.gte(100)) return 0.5; else if (player.e.points.gte(30)) return 0.3;else if (player.e.points.gte(30))return 0.2;if (hasMilestone('m', 0)) return 0.1; else return 0},
-            display() {return "Finish this to unlock Electricity"},
-            unlocked() {return (hasMilestone('m', 0))},
-            
-        },
+   
         
-    },
+    
     tabFormat: [ 
         "main-display", 
         ["prestige-button",
@@ -333,7 +318,7 @@ addLayer("e", {
         ["bar",
     function() {return "EBar"} ]
       ], 
-})
+    })
 
 addLayer("c", {
     name: "Colider", // This is optional, only used in a few places, If absent it just uses the layer id.
@@ -366,19 +351,7 @@ addLayer("c", {
     layerShown(){return (hasMilestone('t', 1))},
 
     branches: ["t"],
-    doReset(resettingLayer) {
-        if (resettingLayer === "m") return; // Don't reset if the layer above (Multiplier) is resetting
-    
-        let keep = [];
-    
-        // Check if the player has the "Vinyl Multiplier" challenge active and add it to the keep array
-        if (hasChallenge('c', 12)) {
-            keep.push('challenges'); // Keep the challenges data
-        }
-    
-        layerDataReset(this.layer, keep);
-    },
-    
+   
 
 
     challenges: {
@@ -396,13 +369,13 @@ addLayer("c", {
         },
         12: {
             name: "Vinyl Multiplier",
-            challengeDescription: "In this challenge, You must get 30 Star ",
-            goalDescription: "Get 30 Star",
+            challengeDescription: "In this challenge, You must get 100 Star ",
+            goalDescription: "Get 100 Star",
             rewardDescription: "you unlock Vinyl Multiplier, and you can buy 5 max hyper Multiplier at once",
             
             canComplete() {
                 
-                return (player.s.points.gte(30))
+                return (player.s.points.gte(100))
             },
             unlocked() {
                 return (player.c.points.gte(3))
@@ -550,7 +523,7 @@ addLayer("cd", {
     },
     clickables: {
         11: {
-            display() {return "Click Me!"},
+            display() {return "Astronomical Discoveries"},
             effect() {  const baseEffect = 1;
 
                 // Get the number of times this clickable has been clicked
@@ -657,19 +630,108 @@ addLayer("cd", {
                         // Check if the click count is greater than or equal to the required number of clicks
                         return clickCount >= clicksRequired;}, 
                     doneTooltip: "Vesta is one of the largest objects in the asteroid belt, with a mean diameter of 525 kilometres. It was discovered by the German astronomer Heinrich Wilhelm Matthias Olbers on 29 March 1807 and is named after Vesta, the virgin goddess of home and hearth from Roman mythology. This gives a 1.4x multiplier boost and a 1.3x hyper multiplier boost"},
+                    15: {
+                        name: "Comet Kohoutek",
+                        done() {
+                            // Define the condition for unlocking this achievement
+                            const clicksRequired = 275;
+                
+                            // Get the number of times the clickable has been clicked
+                            const clickCount = player.cd.clickables[11] || 0;
+                
+                            // Check if the click count is greater than or equal to the required number of clicks
+                            return clickCount >= clicksRequired;
+                        },
+                        unlocked() { const clicksRequired = 200;
+                
+                            // Get the number of times the clickable has been clicked
+                            const clickCount = player.cd.clickables[11] || 0;
+                
+                            // Check if the click count is greater than or equal to the required number of clicks
+                            return clickCount >= clicksRequired;}, 
+                        doneTooltip: "Comet Kohoutek is a comet that passed close to the Sun towards the end of 1973. Early predictions of the comet's peak brightness suggested that it had the potential to become one of the brightest comets, gives a 1.5x multiplier boost & Hyper Multiplier Boost"},
+                        16: {
+                            name: "Chicxulub",
+                            done() {
+                                // Define the condition for unlocking this achievement
+                                const clicksRequired = 360;
+                    
+                                // Get the number of times the clickable has been clicked
+                                const clickCount = player.cd.clickables[11] || 0;
+                    
+                                // Check if the click count is greater than or equal to the required number of clicks
+                                return clickCount >= clicksRequired;
+                            },
+                            unlocked() { const clicksRequired = 275;
+                    
+                                // Get the number of times the clickable has been clicked
+                                const clickCount = player.cd.clickables[11] || 0;
+                    
+                                // Check if the click count is greater than or equal to the required number of clicks
+                                return clickCount >= clicksRequired;}, 
+                            doneTooltip: "The impact that ended the age of dinosaurs some 66 million years ago was the worst single day that life on Earth has ever endured. A six-mile-wide asteroid called Chicxulub slammed into the waters off what is now Mexico, triggering a mass extinction that killed off more than 75 percent of Earth's species. Gives a 1.5x star boost and Multiplier boost  "},
+                            21: {
+                                name: "Computing",
+                                done() {
+                                    // Define the condition for unlocking this achievement
+                                    const clicksRequired = 480;
+                        
+                                    // Get the number of times the clickable has been clicked
+                                    const clickCount = player.cd.clickables[11] || 0;
+                        
+                                    // Check if the click count is greater than or equal to the required number of clicks
+                                    return clickCount >= clicksRequired;
+                                },
+                                unlocked() { const clicksRequired = 360;
+                        
+                                    // Get the number of times the clickable has been clicked
+                                    const clickCount = player.cd.clickables[11] || 0;
+                        
+                                    // Check if the click count is greater than or equal to the required number of clicks
+                                    return clickCount >= clicksRequired;}, 
+                                doneTooltip: "Computers were the pinnicle of human technology and still are, computers are essentially human brains, they have organs such as a mother board, they have memory, RAM which can be considered part of the brain, and have the capability to process images. "},
+                                22: {
+                                    name: "Moons",
+                                    done() {
+                                        // Define the condition for unlocking this achievement
+                                        const clicksRequired = 700;
+                            
+                                        // Get the number of times the clickable has been clicked
+                                        const clickCount = player.cd.clickables[11] || 0;
+                            
+                                        // Check if the click count is greater than or equal to the required number of clicks
+                                        return clickCount >= clicksRequired;
+                                    },
+                                    unlocked() { const clicksRequired = 500;
+                            
+                                        // Get the number of times the clickable has been clicked
+                                        const clickCount = player.cd.clickables[11] || 0;
+                            
+                                        // Check if the click count is greater than or equal to the required number of clicks
+                                        return clickCount >= clicksRequired;}, 
+                                    doneTooltip: "Naturally-formed bodies that orbit planets are called moons, or planetary satellites. The best-known planetary satellite is, of course, Earths Moon. Since it was named before we learned about other planetary satellites, it is called simply “the Moon.”Gives a 1.5x buff to gain "},
+                                    23: {
+                                        name: "Particle Accelerator",
+                                        done() {
+                                            // Define the condition for unlocking this achievement
+                                            const clicksRequired = 1000;
+                                
+                                            // Get the number of times the clickable has been clicked
+                                            const clickCount = player.cd.clickables[11] || 0;
+                                
+                                            // Check if the click count is greater than or equal to the required number of clicks
+                                            return clickCount >= clicksRequired;
+                                        },
+                                        unlocked() { const clicksRequired = 800;
+                                
+                                            // Get the number of times the clickable has been clicked
+                                            const clickCount = player.cd.clickables[11] || 0;
+                                
+                                            // Check if the click count is greater than or equal to the required number of clicks
+                                            return clickCount >= clicksRequired;}, 
+                                        doneTooltip: "A particle accelerator is a machine that uses electromagnetic fields to propel charged particles to very high speeds and energies, and to contain them in well-defined beams. Large accelerators are used for fundamental research in particle physics.Unlocks a side layer "},
             },
-            doReset(resettingLayer) {
-                if (resettingLayer === "m") return; // Don't reset if the layer above (Multiplier) is resetting
             
-                let keep = [];
-            
-                // Check if the player has the "Cosmic Dust" layer achievements unlocked and add them to the keep array
-                if (hasAchievement('cd', 11) || hasAchievement('cd', 12) || hasAchievement('cd', 13) || hasAchievement('cd', 14)) {
-                    keep.push('achievements'); // Keep the achievements data
-                }
-            
-                layerDataReset(this.layer, keep);
-            },
             
         
     },
@@ -703,6 +765,7 @@ addLayer("s", {
         if(hasUpgrade('m', 34)) mult = mult.times(1.1)
         if(hasUpgrade('m', 41)) mult = mult.times(1.2)
         if(hasMilestone('e', 4)) mult = mult.times(2)
+        if (hasAchievement('cd', 16)) mult = mult.times(1.5) 
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -710,7 +773,7 @@ addLayer("s", {
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
 
-    displayRow: 3,
+    displayRow: 1,
     doReset(resettingLayer) {
         if(layers[resettingLayer].row === 2) return;
         
@@ -719,6 +782,14 @@ addLayer("s", {
         layerDataReset(this.layer, keep)
 
         return (player.e.points.gte(1) && player.c.points.gte(1) && player.cd.points.gte(1))
+    },
+    infoboxes: {
+        lore: {
+            title: "Star",
+        body() { return "any massive self-luminous celestial body of gas that shines by radiation derived from its internal energy sources"}
+            
+        },
+        
     },
 
     branches: ["cd", "t"],
@@ -776,6 +847,7 @@ addLayer("hm", {
         if(hasUpgrade('m', 42)) mult = mult.times(1.2)
         if(hasMilestone('e', 4)) mult = mult.times(2)
         if (hasAchievement('cd', 14)) mult = mult.times(1.3)
+        if (hasAchievement('cd', 15)) mult = mult.times(1.5)
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -855,7 +927,7 @@ addLayer("hm", {
     addLayer("vm", {
         name: "Vinyl Multiplier", // This is optional, only used in a few places, If absent it just uses the layer id.
         symbol: "VM", // This appears on the layer's node. Default is the id with the first letter capitalized
-        position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+        position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
         startData() { return {
             unlocked: true,
             
@@ -871,7 +943,7 @@ addLayer("hm", {
         exponent: 0.5, // Prestige currency exponent
         gainMult() { // Calculate the multiplier for main currency from bonuses
             mult = new Decimal(1)
-            
+           
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
@@ -883,7 +955,11 @@ addLayer("hm", {
     
         branches: ["hm", "c", "cd"],
         
-        layerShown(){if(hasChallenge('c', 12)) return true;}, } )
+        layerShown(){if(hasChallenge('c', 12)) return true;}, 
+    infoboxes: {
+        Vinyl: {title: "Vinyl",
+          body() {return "A chemical compound called polyvinyl chloride plastic."}}
+    }} )
 
         addLayer("i", {
             name: "Ion", // This is optional, only used in a few places, If absent it just uses the layer id.
@@ -891,7 +967,7 @@ addLayer("hm", {
             position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
             startData() { return {
                 unlocked: false,
-                
+                ticks: 0,
                 points: new Decimal(0),
                 
             }},
@@ -917,21 +993,161 @@ addLayer("hm", {
         
             branches: ["vm", "s", "cd"],
             
-            layerShown(){if(hasMilestone('t', 2)) return true},
-            tabFormat: [
-                "main-display",
-                ["prestige-button"],
+            tabFormat: {
+                 "Main Tab": {
+                content: [ "main-display",
+                ["prestige-button",
+                function() { return 'Gain' + format(player.i.points) + ' an Ion' },
+                {"color": "black", "font-size": "30px", "font-family": "Impact", "height": "150px",
+            "padding": "0", "text-align": "top", "line-height": "10px",
+        "width": "500px", "margin": "0", "border-radius": "0"},],
                 "blank",
                 ["display-text",
                     function() { return 'I have ' + format(player.cd.points) + ' Cosmic Dust' },
-                    { "color": "blue", "font-size": "16px", "font-family": "Comic Sans MS" }],
+                    { "color": "blue", "font-size": "24px", "font-family": "Merriweather Sans" }],
                     ["display-text",
                     function() { return 'I have ' + format(player.s.points) + ' Star(s)' },
-                    { "color": "yellow", "font-size": "16px", "font-family": "Comic Sans MS" }],
+                    { "color": "yellow", "font-size": "24px", "font-family": "Merriweather Sans" }],
+                    ["display-text",
+                    function() { return 'I have ' + format(player.vm.points) + ' Vinyl Multiplier' },
+                    { "color": "orange", "font-size": "24px", "font-family": "Merriweather Sans" }],
                 "blank",
-                ["toggle", ["c", "beep"]],
+                
+                ["infobox",
+                function() {return "Ion"}
+            ],
                 "milestones",
                 "blank",
                 "blank",
-                "upgrades"
-            ], } )
+                "upgrades",
+                "blank",
+                ["Bar",
+            function() {return "IBar"}]
+            ],},
+               "Studies": {
+                content: ["main-display",
+            "buyables"]
+               } },
+            infoboxes: {
+                Ion: {
+                    title: "Ion",
+                    body() { return "an atom or molecule with a net electric charge due to the loss or gain of one or more electrons hydrogen ions" },
+                    
+                },
+                componentStyles: {
+                    "challenge"() { return {'height': '200px'} },
+                    "prestige-button"() { return {'color': '#2f060c', 'size': '100%'} },
+                    "upgrades": {
+                        transform: "rotate(90deg)" // This rotates the component 90 degrees
+                    }
+                },
+              
+                
+                
+            }, upgrades: {
+                11: {
+                   title: "Ionic Bonds",
+                    description: "Computer power is boosted, as well as a 3x boost to a couple of stats",
+                    cost: new Decimal(5),
+                    
+                },
+                
+            },
+            buyables: {
+                11: {
+                    title() {return "Computers"},
+                    cost() { return new Decimal(2).mul(1.5) },
+                    display() { return "Advanced Circuitry and Technology has created machines that mimick the minds of their creators, very powerful." },
+                    canAfford() { return player[this.layer].points.gte(this.cost(2)) },
+                    buy() {
+                        player[this.layer].points = player[this.layer].points.sub(this.cost(2))
+                        setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                    },
+                    
+                }
+                
+            },
+            Bars: {
+                IBar: {
+                    direction: RIGHT,
+                    width: 50,
+                    hieght: 100,
+                    progress() {
+                        const ticksPerSecond = 1;
+                        const ticks = player.i.ticks || 0;
+                        const progressPercentage = (ticks % ticksPerSecond) / ticksPerSecond;
+                        this.width = 50 * progressPercentage;
+                    },
+                }
+            },
+            
+  startTicks() {
+    player.i.ticksIntervalId = setInterval(() => {
+        // Increment the tick count
+        player.i.ticks = (player.i.ticks || 0) + 1;
+      }, 1000);
+    },
+  
+
+  layerShown() {
+    // Show the layer only if certain conditions are met
+    if (hasMilestone('t', 2)) {
+      // Start the ticks when the layer is shown
+      this.startTicks();
+      return true;
+    }
+    return false;
+  }, 
+         },
+        
+         )
+
+         addLayer("p", {
+            name: "Particle Accelerator", // This is optional, only used in a few places, If absent it just uses the layer id.
+            symbol: "PA", // This appears on the layer's node. Default is the id with the first letter capitalized
+            position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+            
+            startData() { return {
+                unlocked: true,
+                
+                points: new Decimal(0),
+                
+            }},
+            color: "#5cedd8",
+            requires: new Decimal(250),
+            resource: "Particle Accelerators", // Name of prestige currency
+            baseResource:"Energy Particles ", // Name of resource prestige is based on
+            baseAmount() {return player.e.points}, // Get the current amount of baseResource
+            type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+            exponent: 0.5, // Prestige currency exponent
+            gainMult() { // Calculate the multiplier for main currency from bonuses
+                mult = new Decimal(1)
+               
+                return mult
+            },
+            gainExp() { // Calculate the exponent on main currency from bonuses
+                return new Decimal(1)
+            },
+            
+             row: "side",
+            
+            layerShown(){if(hasAchievement('cd', 23)) return true;}, 
+        infoboxes: {
+            Accelerator: {title: "Particle Accelerator",
+              body() {return "A particle accelerator is a machine that uses electromagnetic fields to propel charged particles to very high speeds and energies, and to contain them in well-defined beams. Large accelerators are used for fundamental research in particle physics."}}
+        },
+        bars: {
+            RBar: {
+                direction: RIGHT,
+                width: 200,
+                height: 200,
+                
+                progress() {
+                 return update(60);
+
+                },
+            },
+            
+        }} )
+
+        
