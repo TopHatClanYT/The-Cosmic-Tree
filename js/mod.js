@@ -1,10 +1,10 @@
 let modInfo = {
-	name: "The ??? Tree",
-	author: "nobody",
-	pointsName: "points",
-	modFiles: ["layers.js", "tree.js"],
+	name: "The Cosmic Tree",
+	author: "Anthony",
+	pointsName: "particles",
+	modFiles: ["layers.js", "tree.js", "layersextra.js"],
 
-	discordName: "",
+	discordName: "citations: https://www.energy.gov/science/doe-explainsquarks-and-gluons , https://en.wikipedia.org/wiki/Quark",
 	discordLink: "",
 	initialStartPoints: new Decimal (10), // Used for hard resets and new players
 	offlineLimit: 1,  // In hours
@@ -12,8 +12,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0",
-	name: "Literally nothing",
+	num: "0.1",
+	name: "Ultimate Return",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
@@ -40,8 +40,35 @@ function canGenPoints(){
 function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
-
+     
 	let gain = new Decimal(1)
+	if(hasUpgrade('m', 11)) gain = gain.times(1 + Math.log(1 + x))
+
+	if(hasUpgrade("m", 12)) gain = gain.times(1 + Math.log(1 + x))
+
+    if (hasUpgrade('m', 13)) gain = gain.times(upgradeEffect('m', 13))
+
+	if	(hasUpgrade('q', 15)) gain = gain.times(upgradeEffect('q', 15))
+	
+	if (hasUpgrade('q', 11)) gain = gain.times(1 + Math.log(.5 + x))
+
+		if (hasMilestone('h', 1)) gain = gain.times(4)
+	if (inChallenge('a', 12)) gain = gain.times(0.25)
+	
+	if (hasUpgrade('a', 11)) gain = gain.times(2)
+
+	if (hasUpgrade('a', 13)) gain = gain.times(3)
+
+	if (hasUpgrade('m', 21)) gain = gain.times(2)
+
+		if (hasUpgrade('m', 24)) gain = gain.times(1.1)
+
+	if (hasUpgrade('v', 11)) gain = gain.times(upgradeEffect('v', 11))
+	if (hasUpgrade("m", 17)) gain = gain.times(1.5)
+	if (hasUpgrade("q", 16)) gain = gain.times(1.5)
+	if (hasUpgrade("q", 13)) gain = gain.times(upgradeEffect('q', 13))
+	gain = gain.times(clickableEffect('c', 31))
+    if (hasMilestone('hm', 1)) gain = gain.times(10)
 	return gain
 }
 
@@ -55,7 +82,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte(new Decimal("e280000000"))
+	return player.points.gte(new Decimal("e100"))
 }
 
 
