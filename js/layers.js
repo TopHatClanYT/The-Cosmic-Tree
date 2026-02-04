@@ -519,7 +519,7 @@ addLayer("h", {
     symbol: "HM", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
-        unlocked() {return (player.m.points.gte(400) || player.h.points >= 1) },
+        unlocked() {return (player.m.points.gte(400) || player.h.points >= 1 || player.hm.points >= 1 || player.ce.points >= 1) },
         
 		points: new Decimal(0),
         variable: new Decimal(0),
@@ -536,8 +536,10 @@ addLayer("h", {
        
     },
    doReset(reset){
+    let keep = []
+     keep.push("variable")
       if (reset == "v") player.h.points = new Decimal(0)
-         if (layers[reset].row > this.row) {layerDataReset("h")}
+         if (layers[reset].row > this.row) {layerDataReset("h", keep)}
    },
 
     exponent: new Decimal(1), // Prestige currency exponent
@@ -554,16 +556,16 @@ addLayer("h", {
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
     branches: ["m"],
+    update() {
+        if((player.m.points.gte(400) || player.h.points >= 1 || player.hm.points >= 1 || player.ce.points >= 1)) {
+        player.h.variable = new Decimal(1)}
+    },
     hotkeys: [
         {key: "h", description: "H: Reset for hyper multipliers", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
-    layerShown(){return (player.m.points.gte(400) || player.h.points >= 1)},
-  
-
-
-     upgrades: {
-    
-},
+    layerShown(){if(player.h.variable == 1) return true
+    },
+ 
 milestones: {
     1: {
         requirementDescription: "1 Hyper Multiplier",
@@ -638,12 +640,13 @@ addLayer("a", {
     symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 2, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
-        unlocked() {return (player.q.points.gte(50) || player.a.points >= 1)},
+        unlocked() {return (player.q.points.gte(50) || player.a.points >= 1 || player.hm.points >= 1)},
 		points: new Decimal(0),
         protons: new Decimal(0),
         neutrons: new Decimal(0),
         electrons: new Decimal(0),
         lbaryon: new Decimal(0), 
+        variable: new Decimal(0)
     }},
     color: "#470707",
     requires: new Decimal(100), // Can be a function that takes requirement increases into account
@@ -667,14 +670,20 @@ addLayer("a", {
         keep.push("protons")
         keep.push("neutrons")
         keep.push("electrons")
+        keep.push("variable")
          if (layers[reset].row > this.row) {layerDataReset("a", keep)}
+    },
+    update() {
+        if (player.q.points.gte(50) || player.a.points >= 1 || player.hm.points >= 1){
+            player.a.variable = new Decimal(1)
+        }
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
     branches: ["q"],
     hotkeys: [
         {key: "a", description: "A: Reset for atoms", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
-    layerShown(){return (player.q.points.gte(50) || player.a.points >= 1)
+    layerShown(){return (player.a.variable == 1)
     },
   
 
@@ -832,6 +841,8 @@ addLayer("ct", {
         unlocked() {return (hasUpgrade("m", 16))},
 		points: new Decimal(1),
         hq: new Decimal(0), // Hyper Quarks
+        
+        variable: new Decimal(0)
     }},
     color: "#311403",
     requires: new Decimal(400), // Can be a function that takes requirement increases into account
@@ -851,9 +862,13 @@ addLayer("ct", {
         return new Decimal(1)
     },
     row: "side", // Row the layer is in on the tree (0 is the first row)
-   
+   update() {
+    if (hasUpgrade("m", 16)) {
+        player.ct.variable = new Decimal(1)
+    }
+   },
     hotkeys: [],
-    layerShown(){return (hasUpgrade("m", 16))
+    layerShown(){return (hasUpgrade("m", 16)) || player.ct.variable == 1
 
     },
     
@@ -997,8 +1012,9 @@ addLayer("v", {
     symbol: "VM", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
-        unlocked() {return (player.m.points.gte(12500) || player.v.points >= 1)},
+        unlocked() {return (player.m.points.gte(12500) || player.v.points >= 1 || player.hm.points >= 1 || player.ce.points >= 1)},
 		points: new Decimal(0),
+        variable: new Decimal(0)
     }},
     color: "#eeff00",
     requires: new Decimal(5), // Can be a function that takes requirement increases into account
@@ -1015,12 +1031,23 @@ addLayer("v", {
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
+     doReset(reset){
+        let keep = []
+      
+        keep.push("variable")
+         if (layers[reset].row > this.row) {layerDataReset("v", keep)}
+    },
+    update() {
+        if (player.m.points.gte(12500) || player.v.points >= 1 || player.hm.points >= 1 || player.ce.points >= 1) {
+            player.v.variable = new Decimal(1)
+        }
+    },
     row: 1, // Row the layer is in on the tree (0 is the first row)
     hotkeys: [
         {key: "v", description: "V: Reset for vinyl multipliers", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     branches: ["h"],
-    layerShown(){return (player.m.points.gte(12500) || player.v.points >= 1)},
+    layerShown(){return (player.v.variable == 1)},
     
     upgrades: {
     11: {
@@ -1267,8 +1294,8 @@ addLayer("ACH", {
         done() {return (player.hm.points.gte(1))},
         tooltip: "It's so heavy it affects the achievement",
         style: {
-            "width": "20px",
-            "height": "20px"
+            "width": "150px",
+            "height": "150px"
         }
         
     },
@@ -1298,7 +1325,8 @@ addLayer("ac", {
     startData() { return {
         unlocked() {return (hasAchievement('ACH', 31))},
 		points: new Decimal(1),
-        helium: new Decimal(0)
+        helium: new Decimal(0),
+        variable: new Decimal(0)
     }},
     color: "#d44e00",
     requires: new Decimal(400), // Can be a function that takes requirement increases into account
@@ -1318,9 +1346,12 @@ addLayer("ac", {
         return new Decimal(1)
     },
     row: "side", // Row the layer is in on the tree (0 is the first row)
-   
+   update() {
+     if(hasAchievement('ACH', 31))
+     {player.ac.variable = new Decimal(1)}
+   },
     hotkeys: [],
-    layerShown(){return (hasAchievement('ACH', 31))
+    layerShown(){return (player.ac.variable == new Decimal(1))
 
     }, 
     tabFormat: {
@@ -1350,11 +1381,12 @@ addLayer("c", {
     symbol: "C", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 2, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
-        unlocked() {return (player.q.points.gte(500000) || player.c.points >= 1)},
+        unlocked() {return (player.q.points.gte(500000) || player.c.points >= 1 || player.hm.points >= 1 || player.ce.points >= 1)},
 		points: new Decimal(0),
         t: new Decimal(0),
         adt:  new Decimal(0),
         sat: new Decimal(0),
+        variable: new Decimal(0)
        
     }},
     doReset(reset){
@@ -1362,6 +1394,7 @@ addLayer("c", {
         keep.push('t')
         keep.push('adt')
         keep.push('sat')
+        keep.push("variable")
          if (layers[reset].row > this.row) {layerDataReset("c", keep)}
     },
     color: "#0004ff",
@@ -1376,6 +1409,10 @@ addLayer("c", {
     
         return mult
     },
+    update() {
+        if(player.q.points.gte(500000) || player.c.points >= 1 || player.hm.points >= 1 || player.ce.points >= 1)
+        {player.c.variable = new Decimal(1)}
+    },
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
@@ -1384,7 +1421,7 @@ addLayer("c", {
        
     ],
     branches: ["a", "q"],
-    layerShown(){return (player.q.points.gte(500000) || player.c.points >= 1)},
+    layerShown(){return (player.c.variable == 1)},
     
    
     
@@ -1960,6 +1997,7 @@ addLayer("ce", {
     startData() { return {
         unlocked() {return (getClickableState('c', 43) || player.ce.points >= 1)},
 		points: new Decimal(0),
+        variable: new Decimal(0)
        
     }},
     color: "#3b0134",
@@ -1968,7 +2006,12 @@ addLayer("ce", {
     baseResource: "Atoms", // Name of resource prestige is based on
     baseAmount() {return player.a.points}, // Get the current amount of baseResource
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    
+     doReset(reset){
+        let keep = []
+      
+        keep.push("variable")
+         if (layers[reset].row > this.row) {layerDataReset("ce", keep)}
+    },
    
     exponent: 0.5, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
@@ -1979,6 +2022,10 @@ addLayer("ce", {
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
+    update() {
+        if((getClickableState('c', 43) || player.ce.points >= 1))
+        {player.ce.variable = new Decimal(1)}
+    },
     doReset(){
         let keep = []
         
@@ -1988,7 +2035,7 @@ addLayer("ce", {
     hotkeys: [
         {key: "shift + c", description: "Shift + C: Reset for Cells", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
-    layerShown(){return (getClickableState('c', 43) || player.ce.points >= 1)
+    layerShown(){return (player.ce.variable == 1)
     },
   
 
@@ -2031,6 +2078,7 @@ tabFormat: {
     startData() { return {
         unlocked() {return (player.m.points.gte(1e9) || player.hm.points >= 1)},
 		points: new Decimal(0),
+        variable: new Decimal(0)
        
     }},
     color: "#252525",
@@ -2039,8 +2087,16 @@ tabFormat: {
     baseResource: "Hyper Multipliers", // Name of resource prestige is based on
     baseAmount() {return player.h.points}, // Get the current amount of baseResource
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    
-   
+     doReset(reset){
+        let keep = []
+      
+        keep.push("variable")
+         if (layers[reset].row > this.row) {layerDataReset("hm", keep)}
+    },
+   update() {
+    if((player.m.points.gte(1e9) || player.hm.points >= 1))
+    {player.hm.variable = new Decimal(1)}
+   },
     exponent: 0.5, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
@@ -2064,7 +2120,7 @@ tabFormat: {
     hotkeys: [
         {key: "shift + h", description: "Shift + H: Reset for Heavy Multipliers", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
-    layerShown(){return (player.m.points.gte(1e9) || player.hm.points >= 1)
+    layerShown(){return (player.hm.variable == 1)
     },
   
 
